@@ -1,0 +1,33 @@
+.maindiv {
+    height: 900px;
+    /*width: auto;*/
+    background-image: url("https://cdn.wallpapersafari.com/47/82/HnEf6N.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.infodiv {
+    height: 600px;
+    width: 400px;
+    position: absolute;
+    margin-left: 30%;
+    margin-top: 125px;
+    background-color: #4d5563;
+    opacity: 0.65;
+    border-radius: 10px;
+}
+
+#datapoints {
+    margin-top: 50%;
+    text-align: center;
+}
+
+body {
+    font-family: 'Comfortaa', cursive;
+    color: white;
+}
+
+footer {
+    margin-top: 40px;
+    text-align: center;
+}

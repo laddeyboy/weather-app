@@ -1,0 +1,29 @@
+{% extends "weatherbase.html" %}
+
+
+{% block content %}
+
+    
+    <div id="datapoints" class='container'>
+        <h1>My Weather App</h1>
+        
+        {% if context %}
+            <h1>Current Conditions:</h1>
+            <h1>{{context['city']}}</h1>
+            <h2>Temp is: {{context['temp']}} &#x00B0 F</h2>
+            <h2>Wind Speed: {{context['windspeed']}} mph</h2>
+            <h2>Wind Direction: {{context['winddir']}}</h2>
+        {% else %}
+        <form action="/" method="POST">
+            <label>Enter you City:</label>
+            <br>
+            <input type="text" name="location"/>
+            <input type="submit" value="Submit"/>
+        </form>         
+        {% endif %}
+        
+    </div>
+    
+    
+
+{% endblock %}
