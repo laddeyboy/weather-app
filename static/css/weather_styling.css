@@ -1,7 +1,7 @@
 .maindiv {
     height: 900px;
     /*width: auto;*/
-    background-image: url("https://cdn.wallpapersafari.com/47/82/HnEf6N.jpg");
+    /*background-image: url("https://cdn.wallpapersafari.com/47/82/HnEf6N.jpg");*/
     background-repeat: no-repeat;
     background-size: cover;
 }
@@ -17,14 +17,27 @@
     border-radius: 10px;
 }
 
+.flex-container {
+    display: flex;
+    justify-content: center;
+}
+.content-div {
+    align-content: space-around;
+}
+
+.flex-footer {
+    position: absolute;
+    left: 100px;
+    bottom: 10px;
+}
+
 #datapoints {
-    margin-top: 50%;
     text-align: center;
 }
 
 body {
     font-family: 'Comfortaa', cursive;
-    color: white;
+    color: black;
 }
 
 footer {

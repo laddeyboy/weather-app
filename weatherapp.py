@@ -8,6 +8,8 @@ import requests
 import datetime
 from jinja2 import Environment, PackageLoader, select_autoescape
 
+owm_api_key=os.environ.get('OWM_API_KEY')
+
 ENV = Environment(
     loader = PackageLoader('weather', 'templates'),
     autoescape=select_autoescape(['html', 'xml']))
@@ -26,26 +28,29 @@ class MainHandler(TemplateHandler):
         weatherJSON = weatherJSON.json()
         self.session.query('''INSERT INTO cacheweather VALUES (
                 DEFAULT, %(cityname)s, %(iconurl)s, %(weatherdescription)s, 
-                %(temp)s, %(windspeed)s, %(winddir)s, %(lastupdate)s)
+                %(temp)s, %(windspeed)s, %(winddir)s, %(lastupdate)s, %(weatherid)s)
                 ''', {
                     'cityname': weatherJSON['name'],
-                    'iconurl':'https://openweathermap.org/img/w/'+ weatherJSON['weather'][0]['icon'],
+                    'iconurl':'https://openweathermap.org/img/w/'+ weatherJSON['weather'][0]['icon'] +'.png',
                     'weatherdescription':weatherJSON['weather'][0]['description'],
                     'temp': weatherJSON['main']['temp'],
                     'windspeed':weatherJSON['wind']['speed'],
                     'winddir':weatherJSON['wind']['deg'],
-                    'lastupdate': datetime.datetime.utcnow()
+                    'lastupdate': datetime.datetime.utcnow(),
+                    'weatherid': weatherJSON['weather'][0]['id']
         })
 
     def setContext(self, weatherJSON):
         weatherJSON = weatherJSON.json()
         context = {
             'city': weatherJSON['name'],
-            'iconURL': 'https://openweathermap.org/img/w/'+ weatherJSON['weather'][0]['icon'],
+            'iconURL': 'https://openweathermap.org/img/w/'+ weatherJSON['weather'][0]['icon'] +'.png',
+            # 'weatherid' : weatherJSON['weather'][0]['id'],
             'description': weatherJSON['weather'][0]['description'],
             'temp': weatherJSON['main']['temp'],
             'windspeed': weatherJSON['wind']['speed'],
-            'winddir':weatherJSON['wind']['deg']
+            'winddir':weatherJSON['wind']['deg'],
+            'weatherid' :weatherJSON['weather'][0]['id']
         }
         return context
     
@@ -57,7 +62,8 @@ class MainHandler(TemplateHandler):
             'weatherdescription': db_entry[0]['weatherdescription'],
             'temp': db_entry[0]['temp'],
             'windspeed': db_entry[0]['windspeed'],
-            'winddir':db_entry[0]['winddir']
+            'winddir':db_entry[0]['winddir'],
+            'weatherid': db_entry[0]['weatherid']
         }
         return context
         
@@ -69,19 +75,17 @@ class MainHandler(TemplateHandler):
     def post(self):
         location = self.get_body_argument('location', None)
         apisite = 'https://api.openweathermap.org/data/2.5/weather'
-        payload = {'q': location, 'appid' : '15935c5cd80e04b73bd60fd8820612e8', 'units': 'imperial'}
-        # lastupdate  = self.session.query('SELECT * FROM cacheweather')
-        #database is not empty and I need to check timestamp
+        payload = {'q': location, 'appid' : owm_api_key, 'units': 'imperial'}
         lastupdate = self.session.query('''
             SELECT lastupdate, id FROM cacheweather WHERE cityname=%(location)s ORDER BY lastupdate DESC LIMIT 1
             ''', {'location':location})
-        if(lastupdate and (lastupdate[0]['lastupdate'] < datetime.datetime.utcnow() - datetime.timedelta(minutes=1))):
+        if(lastupdate and (lastupdate[0]['lastupdate'] > datetime.datetime.utcnow() - datetime.timedelta(minutes=15))):
             context = self.getCache(lastupdate[0]['id'])
             self.render_template("weatherhome.html", {'context': context})
         else:
-            context = self.setContext(requests.get(apisite, params = payload))
-        #     # self.setCache(context)
-            # self.setCache(requests.get(apisite, params=payload))
+            owmJSONcall = requests.get(apisite, params = payload)
+            self.setCache(owmJSONcall)
+            context = self.setContext(owmJSONcall)
             self.render_template("weatherhome.html", {'context': context})
            
 #This is the "tornado" code!
