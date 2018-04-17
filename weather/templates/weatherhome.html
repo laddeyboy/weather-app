@@ -12,7 +12,7 @@
 {% block content %}
     <div id="datapoints" class='container'>
         {% if context %}
-            <h1>Current Conditions:</h1>
+            <h1>Current Conditions for</h1>
             <h1>{{context['city']}}</h1>
             <h2>{{ context['weatherdescription'] }}</h2>
             <img src={{context['iconURL']}}></img>
